@@ -3,25 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sabareesh Ramachandran</title>
+    <title>Home</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
-        header {
-            background-color: #fff;
+        nav {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 10px 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            z-index: 1000;
         }
         nav ul {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
         nav ul li {
             display: inline;
@@ -29,50 +38,75 @@
         }
         nav ul li a {
             text-decoration: none;
-            color: #0073e6;
             font-weight: bold;
+            color: #333;
+        }
+        header {
+            width: 100%;
+            margin-top: 50px;
+        }
+        header img {
+            width: 100%;
+            height: auto;
         }
         main {
-            padding: 50px 20px;
-        }
-        img {
-            max-width: 150px;
-            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80%;
+            max-width: 1200px;
             margin-top: 20px;
         }
-        footer {
-            background-color: #fff;
-            padding: 10px;
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-            position: fixed;
+        .content {
+            display: flex;
             width: 100%;
-            bottom: 0;
+            align-items: center;
+        }
+        .content img {
+            width: 50%;
+            max-width: 400px;
+            height: auto;
+        }
+        .text {
+            width: 50%;
+            padding: 20px;
+            text-align: left;
+        }
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            background-color: #f8f8f8;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="research.html">Research</a></li>
+            <li><a href="ventures.html">Previous Ventures</a></li>
+        </ul>
+    </nav>
+    
     <header>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="research.html">Research</a></li>
-                <li><a href="ventures.html">Previous Ventures</a></li>
-            </ul>
-        </nav>
+        <img src="header.jpg" alt="Header Image">
     </header>
     
     <main>
-        <section id="home">
-            <h1>Sabareesh Ramachandran</h1>
-            <img src="assets/website_pic.jpg" alt="Sabareesh Ramachandran">
-            <p>I am a post-doctoral scholar at the Development Innovation Lab at the University of Chicago. I am an economist who studies how governments in developing countries can improve outcomes for their citizens across sectors like education and health. I also study the urban poor in developing countries, their pathways out of poverty, and the role of public programs in this.</p>
-            <p>I will be starting as an Assistant Professor at Indian School of Business, Hyderabad in 2025.</p>
-            <p>Email: <a href="mailto:ramachandran.sabareesh@gmail.com">ramachandran.sabareesh@gmail.com</a></p>
+        <section id="home" class="content">
+            <img src="profile.jpg" alt="Profile Picture">
+            <div class="text">
+                <h1>Sabareesh Ramachandran</h1>
+                <p>I am a post-doctoral scholar at the Development Innovation Lab at the University of Chicago. I am an economist who studies how governments in developing countries can improve outcomes for their citizens across sectors like education and health. I also study the urban poor in developing countries, their pathways out of poverty, and the role of public programs in this.</p>
+                <p>I will be starting as an Assistant Professor at Indian School of Business, Hyderabad in 2025.</p>
+                <p>I was previously at UC San Diego, JPAL South Asia, London School of Economics, and IISc, Bangalore.</p>
+                <p><a href="cv.pdf">Download CV</a></p>
+                <p>Email: <a href="mailto:contact@example.com">contact@example.com</a></p>
+            </div>
         </section>
     </main>
     
-    <footer>
-        <p>&copy; 2025 Sabareesh Ramachandran</p>
-    </footer>
 </body>
 </html>
