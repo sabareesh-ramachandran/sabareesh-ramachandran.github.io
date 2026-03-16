@@ -5,22 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sabareesh Ramachandran</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --ink: #1a1a1a;
-      --muted: #555;
-      --light: #888;
-      --rule: #d8d0c4;
-      --bg: #faf8f5;
-      --accent: #7a3e00;
-      --accent-light: #c47a30;
-      --link: #1a4a7a;
-      --link-hover: #0d2d4d;
-      --serif: 'Lora', Georgia, serif;
-      --sans: 'Source Sans 3', sans-serif;
+      --ink: #1a1e2e;
+      --muted: #4a5068;
+      --light: #8890aa;
+      --rule: #c0c4e0;
+      --bg: #f8f8fb;
+      --accent: #d06030;
+      --accent-light: #e89060;
+      --link: #384880;
+      --link-hover: #222e5a;
+      --serif: 'Source Serif 4', Georgia, serif;
+      --sans: 'Nunito Sans', sans-serif;
     }
 
     html { font-size: 17px; }
@@ -83,7 +83,7 @@
     /* ── HERO ── */
     .hero {
       display: grid;
-      grid-template-columns: 1fr 200px;
+      grid-template-columns: 1fr 1fr;
       gap: 3.5rem;
       align-items: start;
       padding-bottom: 4rem;
@@ -93,6 +93,19 @@
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-photo {
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+      align-self: stretch;
+    }
+    .hero-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
     }
     .hero-text h1 {
       font-family: var(--serif);
@@ -114,38 +127,16 @@
       font-size: 1rem;
       color: var(--muted);
       margin-bottom: 1.1rem;
-      max-width: 520px;
     }
     .hero-text .affiliations {
       font-size: 0.9rem;
       color: var(--light);
+      margin-bottom: 1.4rem;
+    }
+    .hero-text .email-plain {
+      font-size: 0.9rem;
+      color: var(--muted);
       margin-bottom: 1.8rem;
-    }
-    .hero-photo {
-      width: 200px;
-      height: 200px;
-      border-radius: 4px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      flex-shrink: 0;
-    }
-    .hero-photo img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-    }
-    .hero-photo .photo-placeholder {
-      width: 100%; height: 100%;
-      background: linear-gradient(135deg, #e8e2d8, #d4cbbf);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 0.5rem;
-      color: var(--light);
-      font-size: 0.8rem;
-      text-align: center;
-      padding: 1rem;
-    }
-    .hero-photo .photo-placeholder svg {
-      opacity: 0.4;
     }
 
     /* ── LINKS ── */
@@ -191,7 +182,7 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       .hero { grid-template-columns: 1fr; }
-      .hero-photo { width: 140px; height: 140px; }
+      .hero-photo { height: 280px; }
       .hero-text h1 { font-size: 2rem; }
     }
   </style>
@@ -228,17 +219,13 @@
         <a href="https://www.lse.ac.uk/economics">London School of Economics</a> ·
         <a href="https://iisc.ac.in/ug/">IISc, Bangalore</a>
       </p>
+      <p class="email-plain">ramachandran.sabareesh@gmail.com</p>
       <div class="cta-links">
         <a href="https://drive.google.com/file/d/1P1fLnl_OQilgd5jljL2YZpVZC1EdLt8e/view?usp=sharing" class="btn btn-primary" target="_blank">Curriculum Vitae</a>
-        <a href="mailto:ramachandran.sabareesh@gmail.com" class="btn btn-secondary">Email</a>
       </div>
     </div>
     <div class="hero-photo">
-      <!-- Replace the div below with: <img src="your-photo.jpg" alt="Sabareesh Ramachandran"> -->
-      <div class="photo-placeholder">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-          <img src="assets/website pic.jpg" alt="Sabareesh Ramachandran">
-      </div>
+      <img src="assets/website pic.jpg" alt="Sabareesh Ramachandran">
     </div>
   </section>
 </main>
