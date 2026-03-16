@@ -1,107 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="ZkpjHFs7oRty4rGfNHO23ljjr5MgCJ8_xzZSjNsP8Cc" />
-    <title>Home</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        nav {
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 10px 0;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            z-index: 1000;
-        }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        nav ul li {
-            display: inline;
-            margin: 0 15px;
-        }
-        nav ul li a {
-            text-decoration: none;
-            font-weight: bold;
-            color: #333;
-        }
-        header {
-            width: 100%;
-            margin-top: 50px;
-        }
-        header img {
-            width: 100%;
-            height: auto;
-        }
-        main {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 80%;
-            max-width: 1200px;
-            margin-top: 20px;
-        }
-        .content {
-            display: flex;
-            width: 100%;
-            align-items: center;
-        }
-        .content img {
-            width: 50%;
-            max-width: 400px;
-            height: auto;
-        }
-        .text {
-            width: 50%;
-            padding: 20px;
-            text-align: left;
-            font-size: 18px;
-        }
-        footer {
-            width: 100%;
-            text-align: center;
-            padding: 10px 0;
-            background-color: #f8f8f8;
-            margin-top: 20px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sabareesh Ramachandran</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #1a1a1a;
+      --muted: #555;
+      --light: #888;
+      --rule: #d8d0c4;
+      --bg: #faf8f5;
+      --accent: #7a3e00;
+      --accent-light: #c47a30;
+      --link: #1a4a7a;
+      --link-hover: #0d2d4d;
+      --serif: 'Lora', Georgia, serif;
+      --sans: 'Source Sans 3', sans-serif;
+    }
+
+    html { font-size: 17px; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      border-bottom: 1px solid var(--rule);
+      background: var(--bg);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+    .nav-brand {
+      font-family: var(--serif);
+      font-size: 1rem;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--sans);
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--accent); }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 5rem 2rem 6rem;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 3.5rem;
+      align-items: start;
+      padding-bottom: 4rem;
+      border-bottom: 1px solid var(--rule);
+      animation: fadeUp 0.7s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-text h1 {
+      font-family: var(--serif);
+      font-size: 2.6rem;
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--ink);
+      margin-bottom: 0.3rem;
+    }
+    .hero-text .role {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      margin-bottom: 1.8rem;
+    }
+    .hero-text p {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 1.1rem;
+      max-width: 520px;
+    }
+    .hero-text .affiliations {
+      font-size: 0.9rem;
+      color: var(--light);
+      margin-bottom: 1.8rem;
+    }
+    .hero-photo {
+      width: 200px;
+      height: 200px;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+    .hero-photo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .hero-photo .photo-placeholder {
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg, #e8e2d8, #d4cbbf);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.5rem;
+      color: var(--light);
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 1rem;
+    }
+    .hero-photo .photo-placeholder svg {
+      opacity: 0.4;
+    }
+
+    /* ── LINKS ── */
+    .cta-links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--link-hover); }
+    .btn-secondary {
+      border: 1.5px solid var(--rule);
+      color: var(--muted);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    a { color: var(--link); text-decoration: none; }
+    a:hover { color: var(--link-hover); text-decoration: underline; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--light);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-photo { width: 140px; height: 140px; }
+      .hero-text h1 { font-size: 2rem; }
+    }
+  </style>
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="https://www.sabareesh.me/research">Research</a></li>
-            <li><a href="https://www.sabareesh.me/previous-ventures">Previous Ventures</a></li>
-        </ul>
-    </nav>
-    
-    <main>
-        <section id="home" class="content">
-            <img src="assets/website pic.jpg" alt="Profile Picture">
-            <div class="text">
-                <h1>Sabareesh Ramachandran</h1>
-                <p>I am an Assistant Professor at Indian School of Business, Hyderabad. I am an economist who studies how governments in developing countries can improve outcomes for their citizens across sectors like education and health. I also study the urban poor in developing countries, their pathways out of poverty, and the role of public programs in this.</p>
-                <p>Email: ramachandran.sabareesh@gmail.com</p>
-            </div>
-        </section>
-    </main>
-    
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Sabareesh Ramachandran</a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="research.html">Research</a></li>
+      <li><a href="previous-ventures.html">Previous Ventures</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Sabareesh Ramachandran</h1>
+      <p class="role">Assistant Professor · Indian School of Business, Hyderabad</p>
+      <p>
+        I am an economist who studies how governments in developing countries can improve outcomes
+        for their citizens across sectors like education and health. I also study the urban poor
+        in developing countries, their pathways out of poverty, and the role of public programs
+        in this.
+      </p>
+      <p class="affiliations">
+        Previously at
+        <a href="http://dil.uchicago.edu">DIL @ UChicago</a> ·
+        <a href="https://economics.ucsd.edu/">UC San Diego</a> ·
+        <a href="https://www.povertyactionlab.org/south-asia">JPAL South Asia</a> ·
+        <a href="https://www.lse.ac.uk/economics">London School of Economics</a> ·
+        <a href="https://iisc.ac.in/ug/">IISc, Bangalore</a>
+      </p>
+      <div class="cta-links">
+        <a href="https://drive.google.com/file/d/1P1fLnl_OQilgd5jljL2YZpVZC1EdLt8e/view?usp=sharing" class="btn btn-primary" target="_blank">Curriculum Vitae</a>
+        <a href="mailto:ramachandran.sabareesh@gmail.com" class="btn btn-secondary">Email</a>
+      </div>
+    </div>
+    <div class="hero-photo">
+      <!-- Replace the div below with: <img src="your-photo.jpg" alt="Sabareesh Ramachandran"> -->
+      <div class="photo-placeholder">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Add your photo here
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Sabareesh Ramachandran · Indian School of Business, Hyderabad</p>
+</footer>
+
 </body>
 </html>

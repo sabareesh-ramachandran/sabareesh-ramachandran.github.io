@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Previous Ventures · Sabareesh Ramachandran</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1a1a1a;
+      --muted: #555;
+      --light: #888;
+      --rule: #d8d0c4;
+      --bg: #faf8f5;
+      --accent: #7a3e00;
+      --accent-light: #c47a30;
+      --link: #1a4a7a;
+      --link-hover: #0d2d4d;
+      --serif: 'Lora', Georgia, serif;
+      --sans: 'Source Sans 3', sans-serif;
+    }
+    html { font-size: 17px; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.7; min-height: 100vh; }
+
+    nav { border-bottom: 1px solid var(--rule); background: var(--bg); position: sticky; top: 0; z-index: 100; }
+    .nav-inner { max-width: 860px; margin: 0 auto; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+    .nav-brand { font-family: var(--serif); font-size: 1rem; color: var(--ink); text-decoration: none; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { font-family: var(--sans); font-size: 0.88rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    main { max-width: 860px; margin: 0 auto; padding: 4rem 2rem 6rem; animation: fadeUp 0.6s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; margin-bottom: 3rem; color: var(--ink); }
+
+    .venture {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 0 2.5rem;
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .venture:last-child { border-bottom: none; }
+
+    .venture-org {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--accent);
+      padding-top: 0.15rem;
+      line-height: 1.3;
+    }
+
+    .venture-content p {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+    .venture-content p:last-child { margin-bottom: 0; }
+
+    a { color: var(--link); }
+    a:hover { color: var(--link-hover); }
+
+    footer { border-top: 1px solid var(--rule); padding: 1.5rem 2rem; text-align: center; font-size: 0.8rem; color: var(--light); }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+      .venture { grid-template-columns: 1fr; gap: 0.4rem; }
+      .venture-org { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">Sabareesh Ramachandran</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="research.html">Research</a></li>
+      <li><a href="previous-ventures.html" class="active">Previous Ventures</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <h1>Previous Ventures</h1>
+
+  <div class="venture">
+    <div class="venture-org">UC San Diego</div>
+    <div class="venture-content">
+      <p>I worked as a Research Associate with Prof. Karthik Muralidharan and Prof. Paul Niehaus. I contributed to papers <a href="https://www.nber.org/system/files/working_papers/w26744/revisions/w26744.rev1.pdf" target="_blank">evaluating biometric authentication in the public distribution system</a> and on the <a href="https://econweb.ucsd.edu/~pniehaus/papers/SmartcardsGE.pdf" target="_blank">general equilibrium effects of NREGS</a> in India. I also worked with Prof. Karthik Muralidharan on his upcoming book.</p>
+    </div>
+  </div>
+
+  <div class="venture">
+    <div class="venture-org">J-PAL South Asia</div>
+    <div class="venture-content">
+      <p>I was a Research Associate on the Madhya Pradesh School Quality Assurance project working for <a href="https://econweb.ucsd.edu/~kamurali/" target="_blank">Prof. Karthik Muralidharan</a> and <a href="https://sites.google.com/site/abhijeetsingh1/" target="_blank">Prof. Abhijeet Singh</a>. I was a field RA and contributed to <a href="https://www.dropbox.com/s/iouv66cs1yc517j/20210109_MPSQA.pdf?dl=0" target="_blank">this paper</a> on improving school governance at scale and to <a href="https://www.dropbox.com/s/qx0u7zpt2r5ldz2/20210531_Data_Integrity.pdf" target="_blank">this paper</a> on the myths of official measurement.</p>
+    </div>
+  </div>
+
+  <div class="venture">
+    <div class="venture-org">IDFC Institute</div>
+    <div class="venture-content">
+      <p>I was part of <a href="https://www.idfcinstitute.org/projects/state-capacity/the-indian-covid-19-alliance-tica/" target="_blank">The India COVID Alliance (TICA)</a>, advising state governments on their COVID response. We provided <a href="https://www.idfcinstitute.org/blog/2021/march/tica-allocation-track/" target="_blank">optimal vaccination schedules</a> accounting for health and economic benefits.</p>
+      <p>We also wrote a series of posts analysing India's second wave:
+        <a href="https://anupmalani.substack.com/p/what-explains-the-second-wave-of" target="_blank">Part 1</a> ·
+        <a href="https://anupmalani.substack.com/p/what-explains-the-recent-spike-in" target="_blank">Part 2</a> ·
+        <a href="https://anupmalani.substack.com/p/what-explains-the-second-wave-of-a3e" target="_blank">Part 3</a> ·
+        <a href="https://anupmalani.substack.com/p/how-do-we-determine-how-deadly-covid" target="_blank">IFR and CFR</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="venture">
+    <div class="venture-org">London School of Economics</div>
+    <div class="venture-content">
+      <p>I was in the EME program. I wrote my <a href="https://drive.google.com/file/d/1zarYrRF8wdWvKjWukRc6SELYpkwy0eiM/view?usp=sharing" target="_blank">dissertation</a> in public economics on optimal wages in public employment programs. I also worked as a consultant with <a href="https://www.cognoscereconsult.com/" target="_blank">Cognoscere Consulting</a> on a project assisting a public school in Lambeth borough in projecting student numbers and managing resources.</p>
+    </div>
+  </div>
+
+  <div class="venture">
+    <div class="venture-org">Indian Institute of Science (IISc)</div>
+    <div class="venture-content">
+      <p>I majored in Math and studied Theoretical Computer Science. For my bachelor's <a href="https://www.csa.iisc.ac.in/~chandan/thesis_reports/SabareeshR_BachelorsReport.pdf" target="_blank">thesis</a>, I worked on Algebraic Complexity Theory with <a href="https://www.csa.iisc.ac.in/~chandan/" target="_blank">Prof. Chandan Saha</a>.</p>
+      <p>During my undergrad, I worked on projects with <a href="http://www.cns.iisc.ac.in/home/people/sp-arun/" target="_blank">Prof. S P Arun</a> on shape perception from shading, and with <a href="https://strandls.com/member/ramesh-hariharan-ph-d/" target="_blank">Dr. Ramesh Hariharan</a> on properties of Markov chains.</p>
+    </div>
+  </div>
+
+  <div class="venture">
+    <div class="venture-org">NoteBook Drive, IISc</div>
+    <div class="venture-content">
+      <p><a href="https://iisc.ac.in/outreach/activities/notebook-drive/" target="_blank">NBD</a> is a student organization at IISc working towards improving the quality of education in government schools in and around the IISc campus. I volunteered with the student body and had the opportunity to serve as co-coordinator. I cherish my time volunteering with NBD.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p>Sabareesh Ramachandran · Indian School of Business, Hyderabad</p>
+</footer>
+
+</body>
+</html>
