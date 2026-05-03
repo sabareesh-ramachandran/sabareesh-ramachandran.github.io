@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 3 &mdash; Hypothesis Testing</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #EEF2F7;
+      min-height: 100vh;
+      padding: 16px 20px 28px;
+      color: #2E3B42;
+    }
+    h1 { font-size: 1.45rem; font-weight: 700; color: #182890; margin-bottom: 3px; text-align: center; }
+    .subtitle { font-size: 0.80rem; color: #738F9C; margin-bottom: 16px; text-align: center; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; gap: 6px; max-width: 1100px; margin: 0 auto 4px; }
+    .tab {
+      padding: 9px 30px; border: none; border-radius: 10px 10px 0 0;
+      font-size: 0.90rem; font-weight: 600; cursor: pointer;
+      background: #c8d4de; color: #536471; transition: background 0.15s, color 0.15s;
+    }
+    .tab.active { background: #182890; color: #fff; }
+    .tab:hover:not(.active) { background: #b0bfcc; }
+
+    /* ── Card / Panel ── */
+    .card {
+      background: #fff; border-radius: 0 16px 16px 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 22px 26px; max-width: 1100px; margin: 0 auto;
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── Two-column layout ── */
+    .ht-layout {
+      display: grid;
+      grid-template-columns: 265px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ── Left controls ── */
+    .clabel {
+      display: block; font-size: 0.62rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #536471;
+      margin-bottom: 4px; margin-top: 14px;
+    }
+    .clabel:first-child { margin-top: 0; }
+
+    .param-row { margin-bottom: 9px; }
+    .param-lbl { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+    .param-lbl .pname { font-size: 0.83rem; color: #444; }
+    .param-lbl .pnum  { font-size: 0.86rem; font-weight: 700; color: #182890; min-width: 46px; text-align: right; }
+    input[type="range"] { width: 100%; accent-color: #182890; cursor: pointer; }
+
+    /* direction toggle */
+    .dir-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .dir-lbl {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 7px 6px; border: 2px solid #dce3ea; border-radius: 8px;
+      font-size: 0.83rem; font-weight: 500; cursor: pointer; transition: all .12s;
+      user-select: none;
+    }
+    .dir-lbl.on { border-color: #182890; background: #eef1fb; color: #182890; font-weight: 700; }
+    input[type="radio"] { accent-color: #182890; }
+
+    /* hypothesis box */
+    .hypo-box {
+      background: #f5f7fb; border: 1px solid #dce3ea; border-radius: 8px;
+      padding: 9px 12px; margin-bottom: 10px;
+    }
+    .hypo-row { display: flex; gap: 8px; font-size: 0.84rem; align-items: baseline; }
+    .hypo-row .hl { color: #888; min-width: 26px; font-weight: 600; }
+    .hypo-row .hv { font-weight: 700; color: #182890; }
+
+    /* stats rows */
+    .stats-panel { border-top: 1px solid #eef0f2; padding-top: 10px; margin-top: 4px; }
+    .srow { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+    .slbl { font-size: 0.60rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #738F9C; }
+    .sval { font-size: 0.88rem; font-weight: 700; color: #182890; }
+
+    /* CI box */
+    .ci-box {
+      background: #f5f7fb; border: 2px solid #182890; border-radius: 8px;
+      padding: 8px 12px; text-align: center; margin-top: 10px;
+    }
+    .ci-lbl { font-size: 0.60rem; color: #777; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+    .ci-val { font-size: 0.90rem; font-weight: 700; color: #182890; }
+
+    /* ── Right chart column ── */
+    .chart-col { display: flex; flex-direction: column; gap: 10px; }
+    svg.chart-svg { display: block; width: 100%; }
+
+    /* results row */
+    .res-row { display: flex; gap: 10px; }
+    .res-card {
+      flex: 1; background: #f5f7fb; border-radius: 8px;
+      padding: 8px 12px; text-align: center; border: 1px solid #e8ecf4;
+    }
+    .res-card.wide { flex: 1.5; }
+    .res-lbl { font-size: 0.58rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #738F9C; }
+    .res-val { font-size: 1.1rem; font-weight: 700; margin-top: 2px; color: #182890; }
+    .res-val.rej  { color: #C47800; }
+    .res-val.fail { color: #2A6FD4; }
+
+    /* x-bar slider */
+    .xbar-area {
+      background: #f5f7fb; border-radius: 10px;
+      padding: 10px 14px; border: 1px solid #e0e5ef;
+    }
+    .xbar-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+    .xbar-name { font-size: 0.84rem; font-weight: 600; color: #444; }
+    .xbar-val  { font-size: 1.25rem; font-weight: 700; }
+    .xbar-val.rej  { color: #C47800; }
+    .xbar-val.fail { color: #2A6FD4; }
+    .xbar-range { display: flex; justify-content: space-between; font-size: 0.65rem; color: #aab4be; margin-top: 2px; }
+    .hint { font-size: 0.67rem; color: #aab4be; text-align: center; }
+  </style>
+</head>
+<body>
+
+<h1>Week 3 &mdash; Hypothesis Testing</h1>
+<p class="subtitle">Statistical Methods for Business Decision Making &middot; ISB</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('one',this)">One-Sided Test</button>
+  <button class="tab"        onclick="showTab('two',this)">Two-Sided Test</button>
+</div>
+
+<!-- ══════════ ONE-SIDED ══════════ -->
+<div class="panel active" id="panel-one">
+<div class="card">
+<div class="ht-layout">
+
+  <!-- Left controls -->
+  <div>
+    <label class="clabel">Null Hypothesis Parameters</label>
+    <div class="param-row">
+      <div class="param-lbl"><span class="pname">μ₀ &nbsp;(null mean)</span><span class="pnum" id="o-mu-v">50</span></div>
+      <input type="range" id="o-mu" min="0" max="100" value="50" step="1" oninput="updOne()">
+    </div>
+    <div class="param-row">
+      <div class="param-lbl"><span class="pname">σ &nbsp;(pop. std dev)</span><span class="pnum" id="o-sg-v">10</span></div>
+      <input type="range" id="o-sg" min="1" max="30" value="10" step="1" oninput="updOne()">
+    </div>
+    <div class="param-row">
+      <div class="param-lbl"><span class="pname">n &nbsp;(sample size)</span><span class="pnum" id="o-n-v">30</span></div>
+      <input type="range" id="o-n" min="5" max="200" value="30" step="1" oninput="updOne()">
+    </div>
+    <div class="param-row">
+      <div class="param-lbl"><span class="pname">α &nbsp;(significance level)</span><span class="pnum" id="o-al-v">0.05</span></div>
+      <input type="range" id="o-al" min="1" max="20" value="5" step="1" oninput="updOne()">
+    </div>
+
+    <label class="clabel">Alternative Hypothesis</label>
+    <div class="dir-row">
+      <label class="dir-lbl on" id="lbl-up">
+        <input type="radio" name="o-dir" value="upper" checked onchange="updOne()">
+        H₁: μ &gt; μ₀
+      </label>
+      <label class="dir-lbl" id="lbl-lo">
+        <input type="radio" name="o-dir" value="lower" onchange="updOne()">
+        H₁: μ &lt; μ₀
+      </label>
+    </div>
+
+    <div class="hypo-box">
+      <div class="hypo-row"><span class="hl">H₀:</span><span class="hv" id="o-h0">μ = 50</span></div>
+      <div class="hypo-row"><span class="hl">H₁:</span><span class="hv" id="o-h1">μ &gt; 50</span></div>
+    </div>
+
+    <div class="stats-panel">
+      <div class="srow"><span class="slbl">SE = σ/√n</span>   <span class="sval" id="o-se">—</span></div>
+      <div class="srow"><span class="slbl">Critical z</span>  <span class="sval" id="o-zc">—</span></div>
+      <div class="srow"><span class="slbl">Critical x̄</span> <span class="sval" id="o-xc">—</span></div>
+    </div>
+
+    <div class="ci-box">
+      <div class="ci-lbl" id="o-ci-lbl">One-sided 95% lower bound</div>
+      <div class="ci-val" id="o-ci-val">—</div>
+    </div>
+  </div>
+
+  <!-- Right: chart + results + x̄ slider -->
+  <div class="chart-col">
+    <svg class="chart-svg" id="svg-one" viewBox="0 0 720 290" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="res-row">
+      <div class="res-card"><div class="res-lbl">z-statistic</div><div class="res-val fail" id="o-zv">—</div></div>
+      <div class="res-card"><div class="res-lbl">p-value</div>   <div class="res-val fail" id="o-pv">—</div></div>
+      <div class="res-card"><div class="res-lbl">α (threshold)</div><div class="res-val" id="o-al-r" style="color:#182890">0.05</div></div>
+      <div class="res-card wide"><div class="res-lbl">Decision</div><div class="res-val fail" id="o-dec">—</div></div>
+    </div>
+    <div class="xbar-area">
+      <div class="xbar-top">
+        <span class="xbar-name">x̄ &nbsp;(observed sample mean)</span>
+        <span class="xbar-val fail" id="o-xv">—</span>
+      </div>
+      <input type="range" id="o-xb" min="40" max="60" value="50" step="0.05" oninput="updOne()">
+      <div class="xbar-range"><span id="o-xb-lo">40.0</span><span id="o-xb-hi">60.0</span></div>
+    </div>
+    <p class="hint">Drag x̄ to see how the test statistic, p-value, and decision change.</p>
+  </div>
+
+</div>
+</div>
+</div><!-- end panel-one -->
+
+<!-- ══════════ TWO-SIDED ══════════ -->
+<div class="panel" id="panel-two">
+<div class="card">
+<div class="ht-layout">
+
+  <!-- Left controls -->
+  <div>
+    <label class="clabel">Null Hypothesis Parameters</label>
+    <div class="param-row">
+      <div class="param-lbl"><span class="pname">μ₀ &nbsp;(null mean)</span><span class="pnum" id="t-mu-v">50</span></div>
+      <input type="range" id="t-mu" min="0" max="100" value="50" step="1" oninput="updTwo()">
+    </div>
+    <div class="param-row">
+      <div class="param-lbl"><span class="pname">σ &nbsp;(pop. std dev)</span><span class="pnum" id="t-sg-v">10</span></div>
+      <input type="range" id="t-sg" min="1" max="30" value="10" step="1" oninput="updTwo()">
+    </div>
+    <div class="param-row">
+      <div class="param-lbl"><span class="pname">n &nbsp;(sample size)</span><span class="pnum" id="t-n-v">30</span></div>
+      <input type="range" id="t-n" min="5" max="200" value="30" step="1" oninput="updTwo()">
+    </div>
+    <div class="param-row">
+      <div class="param-lbl"><span class="pname">α &nbsp;(significance level)</span><span class="pnum" id="t-al-v">0.05</span></div>
+      <input type="range" id="t-al" min="1" max="20" value="5" step="1" oninput="updTwo()">
+    </div>
+
+    <div class="hypo-box" style="margin-top:10px">
+      <div class="hypo-row"><span class="hl">H₀:</span><span class="hv" id="t-h0">μ = 50</span></div>
+      <div class="hypo-row"><span class="hl">H₁:</span><span class="hv" id="t-h1">μ ≠ 50</span></div>
+    </div>
+
+    <div class="stats-panel">
+      <div class="srow"><span class="slbl">SE = σ/√n</span>          <span class="sval" id="t-se">—</span></div>
+      <div class="srow"><span class="slbl">Critical z (±)</span>      <span class="sval" id="t-zc">—</span></div>
+      <div class="srow"><span class="slbl">Critical x̄ (lower)</span> <span class="sval" id="t-xcl">—</span></div>
+      <div class="srow"><span class="slbl">Critical x̄ (upper)</span> <span class="sval" id="t-xcu">—</span></div>
+    </div>
+
+    <div class="ci-box">
+      <div class="ci-lbl" id="t-ci-lbl">Two-sided 95% CI</div>
+      <div class="ci-val" id="t-ci-val">—</div>
+    </div>
+  </div>
+
+  <!-- Right: chart + results + x̄ slider -->
+  <div class="chart-col">
+    <svg class="chart-svg" id="svg-two" viewBox="0 0 720 290" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="res-row">
+      <div class="res-card"><div class="res-lbl">z-statistic</div><div class="res-val fail" id="t-zv">—</div></div>
+      <div class="res-card"><div class="res-lbl">p-value</div>   <div class="res-val fail" id="t-pv">—</div></div>
+      <div class="res-card"><div class="res-lbl">α (threshold)</div><div class="res-val" id="t-al-r" style="color:#182890">0.05</div></div>
+      <div class="res-card wide"><div class="res-lbl">Decision</div><div class="res-val fail" id="t-dec">—</div></div>
+    </div>
+    <div class="xbar-area">
+      <div class="xbar-top">
+        <span class="xbar-name">x̄ &nbsp;(observed sample mean)</span>
+        <span class="xbar-val fail" id="t-xv">—</span>
+      </div>
+      <input type="range" id="t-xb" min="40" max="60" value="50" step="0.05" oninput="updTwo()">
+      <div class="xbar-range"><span id="t-xb-lo">40.0</span><span id="t-xb-hi">60.0</span></div>
+    </div>
+    <p class="hint">Drag x̄ to see how the test statistic, p-value, and decision change.</p>
+  </div>
+
+</div>
+</div>
+</div><!-- end panel-two -->
+
+<script>
+// ── Maths ────────────────────────────────────────────────────────────────────
+function erf(x) {
+  const s = x >= 0 ? 1 : -1; x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - (((((1.061405429*t - 1.453152027)*t + 1.421413741)*t - 0.284496736)*t + 0.254829592)*t) * Math.exp(-x*x);
+  return s * y;
+}
+const Φ = x => 0.5 * (1 + erf(x / Math.SQRT2));
+const φ = x => Math.exp(-0.5*x*x) / Math.sqrt(2 * Math.PI);
+
+// Acklam's rational approximation for the inverse normal CDF
+function invΦ(p) {
+  if (p <= 0) return -Infinity;
+  if (p >= 1) return  Infinity;
+  const a = [-3.969683028665376e1,  2.209460984245205e2,
+             -2.759285104469687e2,  1.383577518672690e2,
+             -3.066479806614716e1,  2.506628277459239],
+        b = [-5.447609879822406e1,  1.615858368580409e2,
+             -1.556989798598866e2,  6.680131188771972e1,
+             -1.328068155288572e1],
+        c = [-7.784894002430293e-3,-3.223964580411365e-1,
+             -2.400758277161838,   -2.549732539343734,
+              4.374664141464968,    2.938163982698783],
+        d = [ 7.784695709041462e-3, 3.224671290700398e-1,
+              2.445134137142996,    3.754408661907416];
+  const pL = 0.02425, pH = 1 - pL;
+  let q, r, x;
+  if (p < pL) {
+    q = Math.sqrt(-2 * Math.log(p));
+    x = (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+        ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  } else if (p <= pH) {
+    q = p - 0.5; r = q * q;
+    // NOTE: denominator uses all 5 b coefficients
+    x = (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5]) * q /
+        (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+  } else {
+    q = Math.sqrt(-2 * Math.log(1 - p));
+    x = -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+         ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+  }
+  return x;
+}
+
+// ── Drawing ──────────────────────────────────────────────────────────────────
+const NAVY  = '#182890';
+const AMBER = '#F5A800';
+const BLUE  = '#2A6FD4';
+const YFILL = 'rgba(245,168,0,0.28)';
+const BFILL = 'rgba(42,111,212,0.20)';
+
+function draw(svgId, mu, se, xbar, rejRegions) {
+  const svg  = document.getElementById(svgId);
+  const W=720, H=290, pL=48, pR=20, pT=22, pB=52;
+  const plotW = W - pL - pR, plotH = H - pT - pB, baseY = pT + plotH;
+  const xMin  = mu - 4*se, xMax = mu + 4*se;
+  const toX   = v => pL + (v - xMin) / (xMax - xMin) * plotW;
+  const peak  = φ(0) / se;
+  const toY   = p => pT + plotH * (1 - p / peak / 1.18);
+  const steps = 400;
+
+  let h = '';
+
+  // filled regions
+  rejRegions.forEach(r => {
+    const lo = Math.max(xMin, r.lo), hi = Math.min(xMax, r.hi);
+    if (lo >= hi) return;
+    let d = `M${toX(lo).toFixed(1)},${baseY} `;
+    for (let i = 0; i <= steps; i++) {
+      const x = lo + (hi - lo) * i / steps;
+      d += `L${toX(x).toFixed(1)},${toY(φ((x-mu)/se)/se).toFixed(1)} `;
+    }
+    d += `L${toX(hi).toFixed(1)},${baseY} Z`;
+    h += `<path d="${d}" fill="${r.isRej ? YFILL : BFILL}" stroke="none"/>`;
+  });
+
+  // normal curve
+  let cp = '';
+  for (let i = 0; i <= steps; i++) {
+    const x = xMin + (xMax - xMin) * i / steps;
+    cp += (i ? 'L' : 'M') + toX(x).toFixed(1) + ',' + toY(φ((x-mu)/se)/se).toFixed(1) + ' ';
+  }
+  h += `<path d="${cp}" fill="none" stroke="${NAVY}" stroke-width="2.5"/>`;
+
+  // critical value lines
+  rejRegions.forEach(r => {
+    [r.lo, r.hi].forEach(cv => {
+      if (cv === xMin || cv === xMax) return;
+      const cx = toX(cv).toFixed(1);
+      h += `<line x1="${cx}" y1="${pT}" x2="${cx}" y2="${baseY}" stroke="${AMBER}" stroke-width="1.8" stroke-dasharray="5,4"/>`;
+    });
+  });
+
+  // x-axis
+  h += `<line x1="${pL}" y1="${baseY}" x2="${W-pR}" y2="${baseY}" stroke="#bbb" stroke-width="1.5"/>`;
+
+  // tick marks ±1,2,3 SE
+  for (let k = -3; k <= 3; k++) {
+    const v = mu + k*se, cx = toX(v);
+    if (cx < pL - 2 || cx > W - pR + 2) continue;
+    h += `<line x1="${cx.toFixed(1)}" y1="${baseY}" x2="${cx.toFixed(1)}" y2="${(baseY+5).toFixed(1)}" stroke="#aaa" stroke-width="1"/>`;
+    const lbl = k === 0 ? `μ₀=${v.toFixed(1)}` : v.toFixed(1);
+    const col = k === 0 ? NAVY : '#666';
+    const fw  = k === 0 ? 'font-weight="600"' : '';
+    h += `<text x="${cx.toFixed(1)}" y="${(baseY+17).toFixed(1)}" text-anchor="middle" font-size="11" fill="${col}" ${fw}>${lbl}</text>`;
+  }
+
+  // region labels
+  rejRegions.forEach(r => {
+    const lo = Math.max(xMin, r.lo), hi = Math.min(xMax, r.hi);
+    if (lo >= hi) return;
+    const mid = (lo + hi) / 2, cmx = toX(mid);
+    if (cmx < pL || cmx > W - pR) return;
+    const col = r.isRej ? '#C47800' : BLUE;
+    const lbl = r.isRej ? 'Reject H₀' : 'Fail to reject H₀';
+    h += `<text x="${cmx.toFixed(1)}" y="${(pT + plotH*0.20).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="700" fill="${col}">${lbl}</text>`;
+  });
+
+  // x̄ marker (triangle + vertical line)
+  const inRej = rejRegions.some(r => r.isRej && xbar >= r.lo && xbar <= r.hi);
+  const mc = inRej ? AMBER : BLUE;
+  const xbcx = Math.max(pL, Math.min(W - pR, toX(xbar)));
+  h += `<line x1="${xbcx.toFixed(1)}" y1="${pT+4}" x2="${xbcx.toFixed(1)}" y2="${baseY}" stroke="${mc}" stroke-width="2.8"/>`;
+  h += `<polygon points="${xbcx.toFixed(1)},${pT+1} ${(xbcx-7).toFixed(1)},${(pT+16).toFixed(1)} ${(xbcx+7).toFixed(1)},${(pT+16).toFixed(1)}" fill="${mc}"/>`;
+  h += `<text x="${xbcx.toFixed(1)}" y="${(baseY+35).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="700" fill="${mc}">x̄=${xbar.toFixed(2)}</text>`;
+
+  svg.innerHTML = h;
+}
+
+// ── One-sided update ─────────────────────────────────────────────────────────
+function updOne() {
+  const mu  = +document.getElementById('o-mu').value;
+  const sg  = +document.getElementById('o-sg').value;
+  const n   = +document.getElementById('o-n').value;
+  const al  = +document.getElementById('o-al').value / 100;
+  const dir = document.querySelector('input[name="o-dir"]:checked').value;
+  const se  = sg / Math.sqrt(n);
+
+  document.getElementById('o-mu-v').textContent = mu;
+  document.getElementById('o-sg-v').textContent = sg;
+  document.getElementById('o-n-v').textContent  = n;
+  document.getElementById('o-al-v').textContent = al.toFixed(2);
+  document.getElementById('o-al-r').textContent = al.toFixed(3);
+  document.getElementById('lbl-up').className = 'dir-lbl' + (dir === 'upper' ? ' on' : '');
+  document.getElementById('lbl-lo').className = 'dir-lbl' + (dir === 'lower' ? ' on' : '');
+
+  const zc = invΦ(1 - al);
+  const xc = dir === 'upper' ? mu + zc*se : mu - zc*se;
+
+  document.getElementById('o-h0').textContent = `μ = ${mu}`;
+  document.getElementById('o-h1').innerHTML   = dir === 'upper' ? `μ &gt; ${mu}` : `μ &lt; ${mu}`;
+  document.getElementById('o-se').textContent = se.toFixed(3);
+  document.getElementById('o-zc').textContent = (dir === 'upper' ? '+' : '−') + zc.toFixed(3);
+  document.getElementById('o-xc').textContent = xc.toFixed(3);
+
+  // x̄ slider bounds
+  const slo = mu - 4*se, shi = mu + 4*se;
+  const sl  = document.getElementById('o-xb');
+  sl.min = slo.toFixed(3); sl.max = shi.toFixed(3); sl.step = (se/10).toFixed(4);
+  let xb = +sl.value;
+  if (xb < slo) { xb = slo; sl.value = xb; }
+  if (xb > shi) { xb = shi; sl.value = xb; }
+  document.getElementById('o-xb-lo').textContent = slo.toFixed(2);
+  document.getElementById('o-xb-hi').textContent = shi.toFixed(2);
+
+  const z   = (xb - mu) / se;
+  const pv  = dir === 'upper' ? 1 - Φ(z) : Φ(z);
+  const rej = pv <= al;   // reject when p-value ≤ α
+  const cls = rej ? 'rej' : 'fail';
+
+  document.getElementById('o-xv').textContent  = xb.toFixed(2);
+  document.getElementById('o-xv').className    = 'xbar-val ' + cls;
+  document.getElementById('o-zv').textContent  = z.toFixed(3);
+  document.getElementById('o-zv').className    = 'res-val ' + cls;
+  document.getElementById('o-pv').textContent  = pv < 0.0005 ? '< 0.001' : pv.toFixed(3);
+  document.getElementById('o-pv').className    = 'res-val ' + cls;
+  const dec = document.getElementById('o-dec');
+  dec.textContent = rej ? 'Reject H₀' : 'Fail to reject H₀';
+  dec.className   = 'res-val ' + cls;
+
+  // CI (one-sided confidence bound)
+  const conf = ((1 - al) * 100).toFixed(0);
+  if (dir === 'upper') {
+    document.getElementById('o-ci-lbl').textContent = `One-sided ${conf}% lower bound`;
+    document.getElementById('o-ci-val').textContent = `( ${(xb - zc*se).toFixed(2)},  +∞ )`;
+  } else {
+    document.getElementById('o-ci-lbl').textContent = `One-sided ${conf}% upper bound`;
+    document.getElementById('o-ci-val').textContent = `( −∞,  ${(xb + zc*se).toFixed(2)} )`;
+  }
+
+  // draw SVG
+  const regs = dir === 'upper'
+    ? [{ lo: slo, hi: xc,  isRej: false }, { lo: xc,  hi: shi, isRej: true  }]
+    : [{ lo: slo, hi: xc,  isRej: true  }, { lo: xc,  hi: shi, isRej: false }];
+  draw('svg-one', mu, se, xb, regs);
+}
+
+// ── Two-sided update ─────────────────────────────────────────────────────────
+function updTwo() {
+  const mu = +document.getElementById('t-mu').value;
+  const sg = +document.getElementById('t-sg').value;
+  const n  = +document.getElementById('t-n').value;
+  const al = +document.getElementById('t-al').value / 100;
+  const se = sg / Math.sqrt(n);
+
+  document.getElementById('t-mu-v').textContent = mu;
+  document.getElementById('t-sg-v').textContent = sg;
+  document.getElementById('t-n-v').textContent  = n;
+  document.getElementById('t-al-v').textContent = al.toFixed(2);
+  document.getElementById('t-al-r').textContent = al.toFixed(3);
+  document.getElementById('t-h0').textContent   = `μ = ${mu}`;
+  document.getElementById('t-h1').innerHTML     = `μ ≠ ${mu}`;
+
+  const zc  = invΦ(1 - al/2);
+  const xcL = mu - zc*se, xcH = mu + zc*se;
+
+  document.getElementById('t-se').textContent  = se.toFixed(3);
+  document.getElementById('t-zc').textContent  = `±${zc.toFixed(3)}`;
+  document.getElementById('t-xcl').textContent = xcL.toFixed(3);
+  document.getElementById('t-xcu').textContent = xcH.toFixed(3);
+
+  // x̄ slider bounds
+  const slo = mu - 4*se, shi = mu + 4*se;
+  const sl  = document.getElementById('t-xb');
+  sl.min = slo.toFixed(3); sl.max = shi.toFixed(3); sl.step = (se/10).toFixed(4);
+  let xb = +sl.value;
+  if (xb < slo) { xb = slo; sl.value = xb; }
+  if (xb > shi) { xb = shi; sl.value = xb; }
+  document.getElementById('t-xb-lo').textContent = slo.toFixed(2);
+  document.getElementById('t-xb-hi').textContent = shi.toFixed(2);
+
+  const z   = (xb - mu) / se;
+  const pv  = 2 * (1 - Φ(Math.abs(z)));
+  const rej = pv <= al;   // reject when p-value ≤ α
+  const cls = rej ? 'rej' : 'fail';
+
+  document.getElementById('t-xv').textContent  = xb.toFixed(2);
+  document.getElementById('t-xv').className    = 'xbar-val ' + cls;
+  document.getElementById('t-zv').textContent  = z.toFixed(3);
+  document.getElementById('t-zv').className    = 'res-val ' + cls;
+  document.getElementById('t-pv').textContent  = pv < 0.0005 ? '< 0.001' : pv.toFixed(3);
+  document.getElementById('t-pv').className    = 'res-val ' + cls;
+  const dec = document.getElementById('t-dec');
+  dec.textContent = rej ? 'Reject H₀' : 'Fail to reject H₀';
+  dec.className   = 'res-val ' + cls;
+
+  // CI
+  const conf = ((1 - al) * 100).toFixed(0);
+  document.getElementById('t-ci-lbl').textContent = `Two-sided ${conf}% CI`;
+  document.getElementById('t-ci-val').textContent = `( ${(xb - zc*se).toFixed(2)},  ${(xb + zc*se).toFixed(2)} )`;
+
+  // draw SVG
+  const regs = [
+    { lo: slo, hi: xcL, isRej: true  },
+    { lo: xcL, hi: xcH, isRej: false },
+    { lo: xcH, hi: shi, isRej: true  }
+  ];
+  draw('svg-two', mu, se, xb, regs);
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+updOne();
+updTwo();
+</script>
+</body>
+</html>
