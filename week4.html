@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 4 - Linear Regression</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #EEF2F7;
+      min-height: 100vh;
+      padding: 16px 20px 28px;
+      color: #2E3B42;
+    }
+    h1 { font-size: 1.45rem; font-weight: 700; color: #182890; margin-bottom: 3px; text-align: center; }
+    .subtitle { font-size: 0.80rem; color: #738F9C; margin-bottom: 14px; text-align: center; }
+
+    /* ── Tab bar ── */
+    .tab-bar {
+      display: flex; justify-content: center; gap: 8px;
+      max-width: 1100px; margin: 0 auto 14px;
+    }
+    .tab-btn {
+      flex: 1; max-width: 320px;
+      padding: 11px 16px;
+      background: #fff; color: #536471;
+      border: 1.5px solid #dce3ea; border-radius: 10px 10px 0 0;
+      border-bottom: none;
+      font-size: 0.92rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .tab-btn:hover { background: #f4f6f8; color: #182890; }
+    .tab-btn.active {
+      background: #182890; color: white;
+      border-color: #182890;
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .card {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 22px 26px; max-width: 1100px; margin: 0 auto;
+    }
+
+    .reg-layout {
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ── Left panel ── */
+    .clabel {
+      display: block; font-size: 0.62rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #536471;
+      margin-bottom: 6px;
+    }
+
+    /* Dataset toggle */
+    .ds-toggle {
+      display: flex; flex-direction: column; gap: 4px;
+      margin-bottom: 12px;
+    }
+    .ds-toggle label {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 10px; border: 1.5px solid #dce3ea;
+      border-radius: 7px; cursor: pointer;
+      font-size: 0.78rem; color: #536471;
+      transition: all 0.15s;
+    }
+    .ds-toggle label:hover { background: #f4f6f8; }
+    .ds-toggle input[type="radio"] { accent-color: #182890; cursor: pointer; }
+    .ds-toggle label.selected {
+      background: #f0f4ff; border-color: #182890; color: #182890; font-weight: 600;
+    }
+
+    /* Data table (Tab 2 only) */
+    .data-table-wrap { overflow-y: auto; max-height: 240px; border: 1.5px solid #dce3ea; border-radius: 8px; }
+    table.dtbl { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    table.dtbl thead { position: sticky; top: 0; background: #f0f4ff; z-index: 1; }
+    table.dtbl th {
+      text-align: center; font-size: 0.63rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase; color: #536471;
+      padding: 6px 4px; border-bottom: 1.5px solid #dce3ea;
+    }
+    table.dtbl td { padding: 3px 4px; }
+    table.dtbl tr:not(:last-child) td { border-bottom: 1px solid #f0f2f5; }
+    table.dtbl input {
+      width: 100%; padding: 4px 5px; border: 1.5px solid #e8ecf3;
+      border-radius: 5px; font-size: 0.84rem; text-align: center;
+      color: #2E3B42; outline: none; background: white;
+      transition: border-color 0.15s;
+    }
+    table.dtbl input:focus { border-color: #182890; }
+    table.dtbl .del-btn {
+      background: none; border: none; color: #c8d4de; cursor: pointer;
+      font-size: 0.82rem; padding: 2px 6px; line-height: 1;
+    }
+    table.dtbl .del-btn:hover { color: #c0392b; }
+
+    .add-btn {
+      width: 100%; margin-top: 8px; padding: 7px 0;
+      background: white; color: #182890; border: 1.5px solid #182890;
+      border-radius: 7px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .add-btn:hover { background: #e8ecf8; }
+
+    .stats-panel { border-top: 1px solid #eef0f2; padding-top: 11px; margin-top: 12px; }
+    .srow { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+    .slbl { font-size: 0.59rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #738F9C; }
+    .sval { font-size: 0.90rem; font-weight: 700; color: #182890; }
+    .sval.amber { color: #c88a00; }
+    .sval.red { color: #c0392b; }
+    .section-lbl {
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #a0aab4;
+      margin: 9px 0 5px; display: block;
+    }
+
+    .snap-btn {
+      width: 100%; margin-top: 10px; padding: 8px 0;
+      background: #182890; color: white; border: none;
+      border-radius: 8px; font-size: 0.83rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .snap-btn:hover { background: #0f1a6e; }
+    .reset-btn {
+      width: 100%; margin-top: 6px; padding: 7px 0;
+      background: white; color: #536471; border: 1.5px solid #c8d4de;
+      border-radius: 8px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .reset-btn:hover { background: #f4f6f8; }
+
+    /* ── Right panel ── */
+    .ctitle {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: none; color: #536471; margin-bottom: 7px; text-align: center;
+    }
+    svg { display: block; width: 100%; }
+
+    .ssr-box {
+      margin-top: 14px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .ssr-card {
+      padding: 11px 14px; border-radius: 9px; text-align: center;
+    }
+    .ssr-card.current { background: #f0f4ff; border: 1.5px solid #b0beee; }
+    .ssr-card.optimal { background: #fffbea; border: 1.5px solid #e8d080; }
+    .ssr-card-lbl { font-size: 0.59rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #738F9C; margin-bottom: 4px; }
+    .ssr-card-val { font-size: 1.45rem; font-weight: 700; }
+    .ssr-card.current .ssr-card-val { color: #182890; }
+    .ssr-card.optimal .ssr-card-val { color: #c88a00; }
+    .ssr-card-sub { font-size: 0.68rem; color: #738F9C; margin-top: 2px; }
+
+    .eq-box {
+      margin-top: 10px; padding: 9px 16px;
+      background: #f8fafc; border-radius: 8px; border: 1.5px solid #dce3ea;
+      text-align: center; font-size: 0.92rem; color: #2E3B42;
+    }
+    .eq-box .eq-hl { font-weight: 700; color: #182890; font-size: 1.0rem; }
+
+    .hint { font-size: 0.66rem; color: #aab4be; text-align: center; margin-top: 7px; }
+
+    .legend {
+      display: flex; justify-content: center; gap: 18px;
+      margin-top: 10px; flex-wrap: wrap;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.70rem; color: #536471; }
+  </style>
+</head>
+<body>
+
+<h1>Week 4 &mdash; Linear Regression Explorer</h1>
+<p class="subtitle">Statistical Methods for Business Decision Making &middot; ISB</p>
+
+<!-- ── Tab bar ── -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="binary">Binary x</button>
+  <button class="tab-btn" data-tab="continuous">General x</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- TAB 1 — Binary x                                                         -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-binary" class="tab-pane active">
+<div class="card">
+  <div class="reg-layout">
+
+    <!-- ── Left: dataset toggle + stats ── -->
+    <div>
+      <span class="clabel">Dataset</span>
+      <div class="ds-toggle" id="bin-ds-toggle">
+        <label class="selected">
+          <input type="radio" name="bin-ds" value="ebay" checked>
+          eBay &mdash; sales vs. high ad spend
+        </label>
+        <label>
+          <input type="radio" name="bin-ds" value="ctrip">
+          Ctrip &mdash; calls vs. work-from-home
+        </label>
+      </div>
+
+      <div class="stats-panel" style="border-top:none;padding-top:0;margin-top:0;">
+        <span class="section-lbl">Group means (the red bars)</span>
+        <div class="srow">
+          <span class="slbl" style="text-transform:none">y&#x0304; when x = 0</span>
+          <span class="sval red" id="bin-y0">—</span>
+        </div>
+        <div class="srow">
+          <span class="slbl" style="text-transform:none">y&#x0304; when x = 1</span>
+          <span class="sval red" id="bin-y1">—</span>
+        </div>
+        <div class="srow">
+          <span class="slbl" style="text-transform:none">y&#x0304;<sub>1</sub> &minus; y&#x0304;<sub>0</sub></span>
+          <span class="sval red" id="bin-diff">—</span>
+        </div>
+
+        <span class="section-lbl" style="margin-top:12px;">Your line &nbsp; y&#x0302; = &beta;&#x0302;<sub>0</sub> + &beta;&#x0302;<sub>1</sub> &middot; x</span>
+        <div class="srow">
+          <span class="slbl" style="text-transform:none">&beta;&#x0302;<sub>0</sub> &nbsp;(intercept)</span>
+          <span class="sval" id="bin-beta0">—</span>
+        </div>
+        <div class="srow">
+          <span class="slbl" style="text-transform:none">&beta;&#x0302;<sub>1</sub> &nbsp;(slope)</span>
+          <span class="sval" id="bin-beta1">—</span>
+        </div>
+      </div>
+
+      <button class="snap-btn" onclick="binSnapToMeans()">&#10003;&nbsp; Snap line to group means</button>
+      <button class="reset-btn" onclick="binResetLine()">&#8635;&nbsp; Reset line</button>
+      <button class="reset-btn" id="bin-toggle-line-btn" onclick="binToggleLine()" style="margin-top:6px;">Hide line</button>
+    </div>
+
+    <!-- ── Right: scatter ── -->
+    <div>
+      <div class="eq-box">
+        y&#x0302; &nbsp;=&nbsp;
+        <span class="eq-hl" id="bin-eq-a">—</span>
+        &nbsp;+&nbsp;
+        <span class="eq-hl" id="bin-eq-b">—</span>
+        &nbsp;&times;&nbsp; x
+      </div>
+      <svg id="bin-svg" viewBox="0 0 540 360" height="360"></svg>
+
+      <div class="legend">
+        <div class="legend-item">
+          <svg width="20" height="10"><circle cx="10" cy="5" r="4" fill="#182890"/></svg>
+          Data point
+        </div>
+        <div class="legend-item">
+          <svg width="22" height="10"><line x1="0" y1="5" x2="22" y2="5" stroke="#c0392b" stroke-width="3"/></svg>
+          Group mean y&#x0304;
+        </div>
+        <div class="legend-item">
+          <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#182890" stroke-width="2.5"/></svg>
+          Your line
+        </div>
+        <div class="legend-item">
+          <svg width="20" height="10"><circle cx="10" cy="5" r="5" fill="#FFC000"/></svg>
+          Drag handle
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<!-- TAB 2 — Continuous x                                                     -->
+<!-- ════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-continuous" class="tab-pane">
+<div class="card">
+  <div class="reg-layout">
+
+    <!-- ── Left: data table ── -->
+    <div>
+      <span class="clabel">Sample size</span>
+      <div class="ds-toggle" id="cont-ds-toggle" style="margin-bottom:12px;">
+        <label class="selected">
+          <input type="radio" name="cont-ds" value="full" checked>
+          Full sample (n = 250)
+        </label>
+        <label>
+          <input type="radio" name="cont-ds" value="small">
+          Small sample (n = 20)
+        </label>
+      </div>
+
+      <span class="clabel">Data &nbsp;(eBay: ad spend vs. sales)</span>
+      <div class="data-table-wrap">
+        <table class="dtbl">
+          <thead>
+            <tr><th>x &nbsp;(adspend)</th><th>y &nbsp;(sales)</th><th></th></tr>
+          </thead>
+          <tbody id="data-body"></tbody>
+        </table>
+      </div>
+      <button class="add-btn" onclick="addRow()">+ Add row</button>
+      <button class="reset-btn" onclick="resetData()" style="margin-top:6px;">&#8635;&nbsp; Reset data to eBay sample</button>
+
+      <div class="stats-panel">
+        <span class="section-lbl">Your line &nbsp; y&#x0302; = a + b &middot; x</span>
+        <div class="srow">
+          <span class="slbl" style="text-transform:none">Slope &nbsp;<em>b</em></span>
+          <span class="sval" id="cur-slope">—</span>
+        </div>
+        <div class="srow">
+          <span class="slbl" style="text-transform:none">Intercept &nbsp;<em>a</em></span>
+          <span class="sval" id="cur-intercept">—</span>
+        </div>
+
+        <span class="section-lbl" style="margin-top:12px;">OLS best fit</span>
+        <div class="srow">
+          <span class="slbl" style="text-transform:none">Slope &nbsp;<em>b</em></span>
+          <span class="sval amber" id="ols-slope">—</span>
+        </div>
+        <div class="srow">
+          <span class="slbl" style="text-transform:none">Intercept &nbsp;<em>a</em></span>
+          <span class="sval amber" id="ols-intercept">—</span>
+        </div>
+      </div>
+
+      <button class="snap-btn" onclick="snapToOLS()">&#10003;&nbsp; Snap to OLS line</button>
+      <button class="reset-btn" onclick="resetLine()">&#8635;&nbsp; Reset line</button>
+      <button class="reset-btn" id="toggle-line-btn" onclick="toggleLine()" style="margin-top:6px;">Hide line</button>
+      <button class="reset-btn" id="toggle-residuals-btn" onclick="toggleResiduals()" style="margin-top:6px;">Hide residuals</button>
+    </div>
+
+    <!-- ── Right: scatter plot ── -->
+    <div>
+      <div class="eq-box" id="eq-box">
+        y&#x0302; &nbsp;=&nbsp; <span class="eq-hl" id="eq-a">—</span>
+        &nbsp;+&nbsp;
+        <span class="eq-hl" id="eq-b">—</span>
+        &nbsp;&times;&nbsp; x
+      </div>
+      <svg id="reg-svg" viewBox="0 0 540 340" height="340"></svg>
+
+      <div class="legend">
+        <div class="legend-item">
+          <svg width="20" height="10"><circle cx="10" cy="5" r="4" fill="#182890"/></svg>
+          Data point
+        </div>
+        <div class="legend-item">
+          <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#182890" stroke-width="2.5"/></svg>
+          Your line
+        </div>
+        <div class="legend-item">
+          <svg width="20" height="10">
+            <line x1="0" y1="5" x2="20" y2="5" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3"/>
+          </svg>
+          Residual
+        </div>
+        <div class="legend-item">
+          <svg width="20" height="10"><circle cx="10" cy="5" r="5" fill="#FFC000"/></svg>
+          Drag handle
+        </div>
+      </div>
+
+      <div class="ssr-box" id="ssr-box">
+        <div class="ssr-card current">
+          <div class="ssr-card-lbl">Sum of squared residuals</div>
+          <div class="ssr-card-val" id="ssr-current">—</div>
+          <div class="ssr-card-sub">your line</div>
+        </div>
+        <div class="ssr-card optimal">
+          <div class="ssr-card-lbl">Minimum possible SSR</div>
+          <div class="ssr-card-val" id="ssr-optimal">—</div>
+          <div class="ssr-card-sub">OLS solution</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+"use strict";
+
+var NS    = 'http://www.w3.org/2000/svg';
+var NAVY  = '#182890';
+var AMBER = '#FFC000';
+var RED   = '#c0392b';
+var SLATE = '#2E3B42';
+var LBLC  = '#536471';
+var GRID  = '#eef0f2';
+
+// ════════════════════════════════════════════════════════════════════════════
+// Embedded datasets
+// ════════════════════════════════════════════════════════════════════════════
+
+// eBay simulated data: [adspend, highads, sales]  (n=250)
+var EBAY_DATA = [
+  [434,0,3451],[399,0,3549],[499,1,2718],[545,1,3121],[454,0,2751],
+  [697,1,2484],[377,0,3108],[311,0,3237],[473,1,3220],[547,1,3394],
+  [406,0,2178],[514,1,2980],[316,0,3081],[535,1,4046],[415,0,3594],
+  [468,1,3006],[584,1,2744],[644,1,4635],[375,0,3660],[527,1,3351],
+  [588,1,4296],[380,0,3182],[418,0,3403],[509,1,4315],[398,0,2966],
+  [178,0,1561],[265,0,2624],[405,0,3460],[657,1,3453],[546,1,3892],
+  [649,1,3091],[442,0,3609],[492,1,2228],[628,1,3503],[386,0,3539],
+  [598,1,4830],[346,0,3492],[370,0,2722],[411,0,3392],[446,0,4377],
+  [432,0,2732],[482,1,4632],[409,0,2413],[366,0,3043],[286,0,3478],
+  [478,1,2510],[605,1,2986],[609,1,3028],[303,0,3881],[562,1,4166],
+  [439,0,3981],[512,1,3667],[601,1,4142],[551,1,2546],[442,0,3985],
+  [602,1,3931],[450,0,1486],[496,1,4959],[564,1,3027],[540,1,4896],
+  [421,0,3170],[417,0,2498],[491,1,3681],[575,1,3179],[399,0,3200],
+  [343,0,3315],[222,0,2958],[331,0,4333],[598,1,3822],[511,1,2920],
+  [456,1,3697],[528,1,3119],[454,0,3504],[487,1,2018],[702,1,3458],
+  [527,1,3519],[344,0,2520],[184,0,1872],[310,0,2503],[595,1,4486],
+  [391,0,2626],[425,0,3606],[192,0,3232],[287,0,4227],[476,1,4379],
+  [467,1,3248],[468,1,2266],[515,1,2906],[382,0,2783],[596,1,2851],
+  [245,0,2855],[412,0,2721],[271,0,2355],[400,0,2672],[558,1,3806],
+  [592,1,3812],[359,0,2785],[420,0,2541],[183,0,2600],[489,1,4348],
+  [346,0,2572],[295,0,2854],[334,0,3620],[480,1,4479],[321,0,3476],
+  [626,1,2986],[641,1,2565],[578,1,4280],[326,0,3509],[490,1,2978],
+  [482,1,3700],[584,1,4001],[224,0,2723],[460,1,3717],[374,0,2602],
+  [561,1,3547],[342,0,2240],[286,0,3342],[717,1,3488],[454,0,2274],
+  [411,0,3910],[516,1,3493],[313,0,2433],[497,1,2872],[411,0,3492],
+  [582,1,4350],[394,0,2253],[494,1,3724],[418,0,2065],[530,1,4463],
+  [364,0,2130],[497,1,3170],[225,0,3303],[378,0,3024],[303,0,2347],
+  [624,1,2887],[510,1,3042],[459,1,3646],[604,1,3945],[312,0,2850],
+  [533,1,3292],[313,0,3303],[473,1,3459],[428,0,2257],[543,1,3794],
+  [368,0,3612],[361,0,3776],[412,0,2945],[343,0,3410],[250,0,2662],
+  [374,0,2379],[385,0,3968],[369,0,2359],[481,1,3100],[349,0,5772],
+  [714,1,3346],[621,1,3288],[617,1,3924],[657,1,5405],[539,1,4923],
+  [455,1,4166],[375,0,3832],[405,0,3275],[398,0,3636],[453,0,3094],
+  [515,1,4307],[295,0,3680],[639,1,2987],[527,1,5153],[597,1,4049],
+  [274,0,2796],[585,1,3533],[674,1,4366],[289,0,2898],[442,0,2897],
+  [628,1,3864],[338,0,3022],[458,1,3863],[312,0,2542],[544,1,2623],
+  [501,1,3291],[261,0,2459],[273,0,1853],[340,0,2693],[342,0,3988],
+  [554,1,2819],[367,0,3107],[517,1,3159],[499,1,3697],[506,1,2146],
+  [350,0,3104],[431,0,2781],[381,0,3178],[457,1,3144],[501,1,3269],
+  [589,1,3628],[464,1,2183],[493,1,2297],[477,1,3059],[566,1,4247],
+  [482,1,5335],[490,1,2085],[330,0,3157],[310,0,2900],[420,0,3691],
+  [439,0,3431],[470,1,2786],[574,1,2719],[455,1,3294],[499,1,3404],
+  [401,0,2874],[361,0,3939],[521,1,2915],[485,1,4371],[388,0,4385],
+  [268,0,3275],[317,0,1589],[629,1,2400],[539,1,3342],[488,1,3105],
+  [610,1,3990],[358,0,2407],[263,0,1946],[622,1,3440],[371,0,2851],
+  [349,0,2992],[518,1,2380],[514,1,2674],[272,0,3621],[241,0,4017],
+  [397,0,2702],[533,1,3817],[489,1,2901],[482,1,4448],[450,0,2752],
+  [421,0,4115],[579,1,4035],[430,0,3432],[490,1,3421],[489,1,2498],
+  [557,1,3187],[428,0,3675],[280,0,3058],[353,0,4362],[448,0,4112],
+  [519,1,3318],[294,0,3977],[437,0,4127],[600,1,3930],[543,1,3717]
+];
+
+// Ctrip experimental data: [wfh, calls_per_week]  (n=134)
+var CTRIP_DATA = [
+  [1,465],[1,351],[1,588],[1,354],[1,505],[1,347],[1,322],[1,398],[1,378],[1,374],
+  [1,624],[1,506],[1,568],[1,453],[1,473],[1,540],[1,377],[1,325],[1,523],[1,384],
+  [1,420],[1,331],[1,589],[1,451],[1,359],[1,601],[1,493],[1,390],[1,423],[1,396],
+  [1,522],[1,443],[1,309],[1,539],[1,309],[1,388],[1,379],[1,417],[1,462],[1,568],
+  [1,480],[1,408],[1,337],[1,404],[1,396],[1,301],[1,494],[1,400],[1,633],[1,503],
+  [1,454],[1,436],[1,392],[1,386],[1,332],[1,295],[1,364],[1,465],[1,370],[1,646],
+  [1,370],[1,456],[1,600],[1,496],[1,400],[1,446],[1,347],[1,532],
+  [0,397],[0,247],[0,396],[0,353],[0,491],[0,460],[0,460],[0,418],[0,368],[0,242],
+  [0,292],[0,351],[0,597],[0,414],[0,318],[0,593],[0,481],[0,471],[0,377],[0,320],
+  [0,448],[0,581],[0,297],[0,367],[0,365],[0,489],[0,370],[0,497],[0,246],[0,296],
+  [0,482],[0,208],[0,378],[0,496],[0,429],[0,206],[0,414],[0,418],[0,317],[0,356],
+  [0,351],[0,309],[0,250],[0,383],[0,229],[0,468],[0,469],[0,366],[0,493],[0,526],
+  [0,390],[0,383],[0,482],[0,487],[0,483],[0,483],[0,382],[0,269],[0,354],[0,380],
+  [0,214],[0,533],[0,353],[0,542],[0,334],[0,455]
+];
+
+// ════════════════════════════════════════════════════════════════════════════
+// SVG helpers
+// ════════════════════════════════════════════════════════════════════════════
+function mk(tag, attrs, parent) {
+  var el = document.createElementNS(NS, tag);
+  for (var k in attrs) el.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(el);
+  return el;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Tab switching
+// ════════════════════════════════════════════════════════════════════════════
+(function () {
+  var btns  = document.querySelectorAll('.tab-btn');
+  var panes = document.querySelectorAll('.tab-pane');
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var name = btn.getAttribute('data-tab');
+      btns.forEach(function (b) { b.classList.toggle('active', b === btn); });
+      panes.forEach(function (p) { p.classList.toggle('active', p.id === 'tab-' + name); });
+      // Repaint whichever tab is now visible (handles will misalign otherwise)
+      if (name === 'binary')     binDraw();
+      else                       draw();
+    });
+  });
+})();
+
+// ════════════════════════════════════════════════════════════════════════════
+// ─── TAB 1: BINARY ─────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+
+var BIN_SVG_W = 540, BIN_SVG_H = 360;
+var BIN_PL = 60, BIN_PR = 22, BIN_PT = 22, BIN_PB = 44;
+var BIN_PW = BIN_SVG_W - BIN_PL - BIN_PR;
+var BIN_PH = BIN_SVG_H - BIN_PT - BIN_PB;
+
+// Active binary dataset: array of {x, y}
+var binDataset = 'ebay';
+var BIN_DATA = [];
+
+// Line in (x = 0, x = 1) space — defined by its two y-values
+var binLineY0 = 0;   // y at x=0   →  intercept β̂₀
+var binLineY1 = 0;   // y at x=1   →  β̂₀ + β̂₁
+
+var binDragTarget = null;
+var binShowLine   = true;
+
+function binLoadDataset() {
+  if (binDataset === 'ebay') {
+    BIN_DATA = EBAY_DATA.map(function (r) { return { x: r[1], y: r[2] }; });
+  } else {
+    BIN_DATA = CTRIP_DATA.map(function (r) { return { x: r[0], y: r[1] }; });
+  }
+}
+
+function binAxes() {
+  var ys = BIN_DATA.map(function (d) { return d.y; });
+  var yMin = Math.min.apply(null, ys);
+  var yMax = Math.max.apply(null, ys);
+  var yR = yMax - yMin;
+  return {
+    xMin: -0.3,
+    xMax:  1.3,
+    yMin: yMin - yR * 0.08,
+    yMax: yMax + yR * 0.10
+  };
+}
+
+function bsx(xd, ax) { return BIN_PL + (xd - ax.xMin) / (ax.xMax - ax.xMin) * BIN_PW; }
+function bsy(yd, ax) { return BIN_PT + BIN_PH - (yd - ax.yMin) / (ax.yMax - ax.yMin) * BIN_PH; }
+function fromBSY(svgY, ax) {
+  return ax.yMin + (1 - (svgY - BIN_PT) / BIN_PH) * (ax.yMax - ax.yMin);
+}
+
+function binGroupMeans() {
+  var s0 = 0, n0 = 0, s1 = 0, n1 = 0;
+  BIN_DATA.forEach(function (d) {
+    if (d.x === 0) { s0 += d.y; n0++; }
+    else           { s1 += d.y; n1++; }
+  });
+  return { y0: n0 ? s0 / n0 : 0, y1: n1 ? s1 / n1 : 0, n0: n0, n1: n1 };
+}
+
+function binDraw() {
+  var el = document.getElementById('bin-svg');
+  while (el.firstChild) el.removeChild(el.firstChild);
+
+  var ax = binAxes();
+  el._axes = ax;
+
+  // Grid
+  var NY = 5;
+  for (var i = 0; i <= NY; i++) {
+    var yv  = ax.yMin + (ax.yMax - ax.yMin) * i / NY;
+    var gsy = bsy(yv, ax);
+    mk('line', {x1: BIN_PL, y1: gsy, x2: BIN_PL + BIN_PW, y2: gsy,
+      stroke: GRID, 'stroke-width': '1'}, el);
+    var tl = mk('text', {x: BIN_PL - 6, y: gsy + 4, 'text-anchor': 'end',
+      fill: LBLC, 'font-size': '10'}, el);
+    tl.textContent = Math.round(yv);
+  }
+
+  // X-tick labels: 0 and 1
+  [0, 1].forEach(function (xv) {
+    var gsx = bsx(xv, ax);
+    mk('line', {x1: gsx, y1: BIN_PT, x2: gsx, y2: BIN_PT + BIN_PH,
+      stroke: GRID, 'stroke-width': '1'}, el);
+    var tl = mk('text', {x: gsx, y: BIN_PT + BIN_PH + 16, 'text-anchor': 'middle',
+      fill: LBLC, 'font-size': '11', 'font-weight': '600'}, el);
+    tl.textContent = xv;
+  });
+
+  // Axes
+  mk('line', {x1: BIN_PL, y1: BIN_PT + BIN_PH, x2: BIN_PL + BIN_PW,
+    y2: BIN_PT + BIN_PH, stroke: SLATE, 'stroke-width': '1.5'}, el);
+  mk('line', {x1: BIN_PL, y1: BIN_PT, x2: BIN_PL, y2: BIN_PT + BIN_PH,
+    stroke: SLATE, 'stroke-width': '1.5'}, el);
+
+  // Axis labels
+  var xLabel = binDataset === 'ebay' ? 'highads' : 'wfh';
+  var yLabel = binDataset === 'ebay' ? 'sales'   : 'calls_per_week';
+  var xlbl = mk('text', {x: BIN_PL + BIN_PW / 2, y: BIN_SVG_H - 8,
+    'text-anchor': 'middle', fill: LBLC, 'font-size': '11', 'font-weight': '600'}, el);
+  xlbl.textContent = 'x = ' + xLabel;
+  var ylbl = mk('text', {x: 12, y: BIN_PT + BIN_PH / 2,
+    'text-anchor': 'middle', fill: LBLC, 'font-size': '11', 'font-weight': '600',
+    transform: 'rotate(-90,12,' + (BIN_PT + BIN_PH / 2) + ')'}, el);
+  ylbl.textContent = 'y = ' + yLabel;
+
+  // Data points
+  BIN_DATA.forEach(function (d, i) {
+    var px = bsx(d.x, ax);
+    var py = bsy(d.y, ax);
+    mk('circle', {cx: px, cy: py, r: '3.5', fill: NAVY,
+      opacity: '0.55', stroke: 'white', 'stroke-width': '0.5'}, el);
+  });
+
+  // Group-mean bars (red) — short horizontal segments at x = 0 and x = 1
+  var means = binGroupMeans();
+  var meanBarHalf = 30; // svg px
+  [{x: 0, y: means.y0}, {x: 1, y: means.y1}].forEach(function (m) {
+    var cx = bsx(m.x, ax);
+    var cy = bsy(m.y, ax);
+    mk('line', {x1: cx - meanBarHalf, y1: cy, x2: cx + meanBarHalf, y2: cy,
+      stroke: RED, 'stroke-width': '4', 'stroke-linecap': 'round'}, el);
+  });
+
+  // User line + drag handles (only when shown)
+  if (binShowLine) {
+    var lx1 = bsx(0, ax), ly1 = bsy(binLineY0, ax);
+    var lx2 = bsx(1, ax), ly2 = bsy(binLineY1, ax);
+
+    // Extend line slightly past x=0 and x=1 so it crosses the plot area
+    var slope = binLineY1 - binLineY0;   // β̂₁ (per unit of x)
+    var leftY  = binLineY0 + slope * ax.xMin;
+    var rightY = binLineY0 + slope * ax.xMax;
+    var lxL = bsx(ax.xMin, ax), lyL = bsy(leftY,  ax);
+    var lxR = bsx(ax.xMax, ax), lyR = bsy(rightY, ax);
+    mk('line', {x1: lxL, y1: lyL, x2: lxR, y2: lyR,
+      stroke: NAVY, 'stroke-width': '2.5', 'stroke-linecap': 'round',
+      opacity: '0.85'}, el);
+
+    // Drag handles
+    mk('circle', {cx: lx1, cy: ly1, r: '10', fill: AMBER,
+      stroke: 'white', 'stroke-width': '2',
+      cursor: 'ns-resize', 'data-bhandle': '0'}, el);
+    mk('circle', {cx: lx2, cy: ly2, r: '10', fill: AMBER,
+      stroke: 'white', 'stroke-width': '2',
+      cursor: 'ns-resize', 'data-bhandle': '1'}, el);
+  }
+
+  // ── Update stats panel ──
+  var beta0 = binLineY0;             // y at x=0 = intercept
+  var beta1 = binLineY1 - binLineY0; // slope (per unit of x)
+  document.getElementById('bin-y0').textContent      = means.y0.toFixed(1);
+  document.getElementById('bin-y1').textContent      = means.y1.toFixed(1);
+  document.getElementById('bin-diff').textContent    = (means.y1 - means.y0).toFixed(1);
+  document.getElementById('bin-beta0').textContent   = beta0.toFixed(1);
+  document.getElementById('bin-beta1').textContent   = beta1.toFixed(1);
+  document.getElementById('bin-eq-a').textContent    = (beta0 >= 0 ? '' : '−') + Math.abs(beta0).toFixed(1);
+  document.getElementById('bin-eq-b').textContent    = beta1.toFixed(1);
+}
+
+// Binary drag
+(function () {
+  function getPt(e, svgEl) {
+    var pt  = svgEl.createSVGPoint();
+    var src = (e.touches || e.changedTouches || [])[0] || e;
+    pt.x = src.clientX; pt.y = src.clientY;
+    return pt.matrixTransform(svgEl.getScreenCTM().inverse());
+  }
+  function start(e) {
+    var t = e.target;
+    if (!t || !t.getAttribute || !t.getAttribute('data-bhandle')) return;
+    binDragTarget = t.getAttribute('data-bhandle');
+    e.preventDefault();
+  }
+  function move(e) {
+    if (binDragTarget === null) return;
+    e.preventDefault();
+    var svgEl = document.getElementById('bin-svg');
+    var ax = svgEl._axes;
+    if (!ax) return;
+    var p = getPt(e, svgEl);
+    var yData = fromBSY(p.y, ax);
+    var yRange = ax.yMax - ax.yMin;
+    yData = Math.max(ax.yMin - yRange, Math.min(ax.yMax + yRange, yData));
+    if (binDragTarget === '0') binLineY0 = yData;
+    else                       binLineY1 = yData;
+    binDraw();
+  }
+  function end() { binDragTarget = null; }
+
+  document.addEventListener('mousedown',  start);
+  document.addEventListener('touchstart', start, { passive: false });
+  window.addEventListener('mousemove',    move);
+  window.addEventListener('touchmove',    move, { passive: false });
+  window.addEventListener('mouseup',      end);
+  window.addEventListener('touchend',     end);
+})();
+
+function binToggleLine() {
+  binShowLine = !binShowLine;
+  var btn = document.getElementById('bin-toggle-line-btn');
+  btn.textContent = binShowLine ? 'Hide line' : 'Show line';
+  binDraw();
+}
+
+function binSnapToMeans() {
+  var means = binGroupMeans();
+  binLineY0 = means.y0;
+  binLineY1 = means.y1;
+  binDraw();
+}
+
+function binResetLine() {
+  var ax = binAxes();
+  binLineY0 = ax.yMin + (ax.yMax - ax.yMin) * 0.35;
+  binLineY1 = ax.yMin + (ax.yMax - ax.yMin) * 0.65;
+  binDraw();
+}
+
+// Binary dataset toggle wiring
+(function () {
+  var radios = document.querySelectorAll('input[name="bin-ds"]');
+  radios.forEach(function (r) {
+    r.addEventListener('change', function () {
+      if (!r.checked) return;
+      binDataset = r.value;
+      document.querySelectorAll('#bin-ds-toggle label').forEach(function (lbl) {
+        lbl.classList.toggle('selected', lbl.contains(r));
+      });
+      binLoadDataset();
+      binResetLine();
+    });
+  });
+})();
+
+// Continuous sample-size toggle wiring
+(function () {
+  var radios = document.querySelectorAll('input[name="cont-ds"]');
+  radios.forEach(function (r) {
+    r.addEventListener('change', function () {
+      if (!r.checked) return;
+      contSample = r.value;
+      document.querySelectorAll('#cont-ds-toggle label').forEach(function (lbl) {
+        lbl.classList.toggle('selected', lbl.contains(r));
+      });
+      DATA = ebayContinuousData();
+      renderTable();
+      resetLine();
+    });
+  });
+})();
+
+// ════════════════════════════════════════════════════════════════════════════
+// ─── TAB 2: CONTINUOUS ─────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+
+var SVG_W = 540, SVG_H = 340;
+var PL = 60, PR = 18, PT = 18, PB = 40;
+var PW = SVG_W - PL - PR;
+var PH = SVG_H - PT - PB;
+
+// Default dataset: eBay adspend vs sales
+// "full" uses all 250 rows; "small" uses every 13th row (20 points, spread across x range)
+var contSample = 'full';
+function ebayContinuousData() {
+  if (contSample === 'small') {
+    var out = [];
+    for (var i = 0; i < EBAY_DATA.length; i += 13) {
+      out.push({ x: EBAY_DATA[i][0], y: EBAY_DATA[i][2] });
+    }
+    return out;  // exactly 20 points: i = 0, 13, 26, ..., 247
+  }
+  return EBAY_DATA.map(function (r) { return { x: r[0], y: r[2] }; });
+}
+var DATA = ebayContinuousData();
+
+// Line state in data-axis space
+var lineYL = 0;
+var lineYR = 0;
+var dragTarget = null;
+var showLine      = true;
+var showResiduals = true;
+
+function getAxes() {
+  var xs = DATA.map(function (d) { return d.x; });
+  var ys = DATA.map(function (d) { return d.y; });
+  var xMin = Math.min.apply(null, xs);
+  var xMax = Math.max.apply(null, xs);
+  var yMin = Math.min.apply(null, ys);
+  var yMax = Math.max.apply(null, ys);
+  var xR = (xMax - xMin) || 1;
+  var yR = (yMax - yMin) || 1;
+  return {
+    xMin: xMin - xR * 0.05,
+    xMax: xMax + xR * 0.05,
+    yMin: yMin - yR * 0.05,
+    yMax: yMax + yR * 0.05
+  };
+}
+
+function sx(xd, ax) { return PL + (xd - ax.xMin) / (ax.xMax - ax.xMin) * PW; }
+function sy(yd, ax) { return PT + PH - (yd - ax.yMin) / (ax.yMax - ax.yMin) * PH; }
+function fromSY(svgY, ax) {
+  return ax.yMin + (1 - (svgY - PT) / PH) * (ax.yMax - ax.yMin);
+}
+
+function getAB(ax) {
+  var b = (lineYR - lineYL) / (ax.xMax - ax.xMin);
+  var a = lineYL - b * ax.xMin;
+  return { a: a, b: b };
+}
+
+function computeSSR(a, b) {
+  return DATA.reduce(function (s, d) {
+    var r = d.y - (a + b * d.x);
+    return s + r * r;
+  }, 0);
+}
+
+function computeOLS() {
+  var n = DATA.length;
+  if (n < 2) return { a: 0, b: 0 };
+  var sx2 = 0, sy2 = 0, sxy = 0, sxx = 0;
+  DATA.forEach(function (d) { sx2 += d.x; sy2 += d.y; sxy += d.x * d.y; sxx += d.x * d.x; });
+  var denom = n * sxx - sx2 * sx2;
+  if (Math.abs(denom) < 1e-12) return { a: sy2 / n, b: 0 };
+  var b = (n * sxy - sx2 * sy2) / denom;
+  var a = (sy2 - b * sx2) / n;
+  return { a: a, b: b };
+}
+
+function draw() {
+  var el = document.getElementById('reg-svg');
+  while (el.firstChild) el.removeChild(el.firstChild);
+
+  var ax  = getAxes();
+  var ab  = getAB(ax);
+  var a   = ab.a, b = ab.b;
+  var ols = computeOLS();
+
+  el._axes = ax;
+
+  var NY = 5, NX = 6;
+  for (var i = 0; i <= NY; i++) {
+    var yv = ax.yMin + (ax.yMax - ax.yMin) * i / NY;
+    var gsy = sy(yv, ax);
+    mk('line', {x1: PL, y1: gsy, x2: PL + PW, y2: gsy,
+      stroke: GRID, 'stroke-width': '1'}, el);
+    var tl = mk('text', {x: PL - 5, y: gsy + 4, 'text-anchor': 'end',
+      fill: LBLC, 'font-size': '10'}, el);
+    tl.textContent = Math.round(yv);
+  }
+  for (var i = 0; i <= NX; i++) {
+    var xv = ax.xMin + (ax.xMax - ax.xMin) * i / NX;
+    var gsx = sx(xv, ax);
+    mk('line', {x1: gsx, y1: PT, x2: gsx, y2: PT + PH,
+      stroke: GRID, 'stroke-width': '1'}, el);
+    var tl2 = mk('text', {x: gsx, y: PT + PH + 14, 'text-anchor': 'middle',
+      fill: LBLC, 'font-size': '10'}, el);
+    tl2.textContent = Math.round(xv);
+  }
+
+  mk('line', {x1: PL, y1: PT + PH, x2: PL + PW, y2: PT + PH,
+    stroke: SLATE, 'stroke-width': '1.5'}, el);
+  mk('line', {x1: PL, y1: PT, x2: PL, y2: PT + PH,
+    stroke: SLATE, 'stroke-width': '1.5'}, el);
+
+  var xlbl = mk('text', {x: PL + PW / 2, y: SVG_H - 4,
+    'text-anchor': 'middle', fill: LBLC, 'font-size': '11', 'font-weight': '600'}, el);
+  xlbl.textContent = 'x  (ad spend)';
+  var ylbl = mk('text', {x: 12, y: PT + PH / 2,
+    'text-anchor': 'middle', fill: LBLC, 'font-size': '11', 'font-weight': '600',
+    transform: 'rotate(-90,12,' + (PT + PH / 2) + ')'}, el);
+  ylbl.textContent = 'y  (sales)';
+
+  if (showLine) {
+    if (showResiduals) {
+      // Residual lines: bolder when sample is small so dashes are clearly readable
+      var resOpacity = DATA.length < 50 ? '0.75' : '0.35';
+      var resWidth   = DATA.length < 50 ? '1.5'  : '1';
+      var resDash    = DATA.length < 50 ? '4,3'  : '3,2';
+      DATA.forEach(function (d) {
+        var yhat = a + b * d.x;
+        var px = sx(d.x, ax);
+        var py_pt  = sy(d.y, ax);
+        var py_hat = sy(yhat, ax);
+        if (Math.abs(py_pt - py_hat) > 1) {
+          mk('line', {
+            x1: px, y1: py_pt, x2: px, y2: py_hat,
+            stroke: RED, 'stroke-width': resWidth, 'stroke-dasharray': resDash,
+            opacity: resOpacity
+          }, el);
+        }
+      });
+    }
+    var lyL_svg = sy(lineYL, ax);
+    var lyR_svg = sy(lineYR, ax);
+    mk('line', {x1: PL, y1: lyL_svg, x2: PL + PW, y2: lyR_svg,
+      stroke: NAVY, 'stroke-width': '2.5', 'stroke-linecap': 'round'}, el);
+  }
+
+  // Points: larger and more solid when sample is small
+  var ptR  = DATA.length < 50 ? '5'   : '3';
+  var ptOp = DATA.length < 50 ? '0.9' : '0.55';
+  DATA.forEach(function (d) {
+    var px = sx(d.x, ax);
+    var py = sy(d.y, ax);
+    mk('circle', {cx: px, cy: py, r: ptR, fill: NAVY,
+      opacity: ptOp, stroke: 'white', 'stroke-width': '0.5'}, el);
+  });
+
+  if (showLine) {
+    var ly1h = sy(lineYL, ax);
+    var ly2h = sy(lineYR, ax);
+    mk('circle', {cx: PL,      cy: ly1h, r: '10',
+      fill: AMBER, stroke: 'white', 'stroke-width': '2',
+      cursor: 'ns-resize', 'data-handle': 'L'}, el);
+    mk('circle', {cx: PL + PW, cy: ly2h, r: '10',
+      fill: AMBER, stroke: 'white', 'stroke-width': '2',
+      cursor: 'ns-resize', 'data-handle': 'R'}, el);
+  }
+
+  var ssr    = computeSSR(a, b);
+  var olsSSR = computeSSR(ols.a, ols.b);
+
+  var hidden = !showLine;
+  document.getElementById('ssr-current').textContent   = hidden ? '—' : Math.round(ssr).toLocaleString();
+  document.getElementById('ssr-optimal').textContent   = Math.round(olsSSR).toLocaleString();
+  document.getElementById('eq-a').textContent          = hidden ? '—' : ((a >= 0 ? '' : '−') + Math.abs(a).toFixed(1));
+  document.getElementById('eq-b').textContent          = hidden ? '—' : b.toFixed(3);
+  document.getElementById('cur-slope').textContent     = hidden ? '—' : b.toFixed(3);
+  document.getElementById('cur-intercept').textContent = hidden ? '—' : a.toFixed(1);
+  document.getElementById('ols-slope').textContent     = ols.b.toFixed(3);
+  document.getElementById('ols-intercept').textContent = ols.a.toFixed(1);
+
+  document.getElementById('ssr-box').style.opacity = hidden ? '0.35' : '1';
+  document.getElementById('eq-box').style.opacity  = hidden ? '0.35' : '1';
+
+  var curCard = document.querySelector('#tab-continuous .ssr-card.current');
+  var atOpt   = !hidden && Math.abs(ssr - olsSSR) / Math.max(olsSSR, 1) < 0.001;
+  curCard.style.background  = atOpt ? '#eafaf0' : '#f0f4ff';
+  curCard.style.borderColor = atOpt ? '#70c090' : '#b0beee';
+  document.getElementById('ssr-current').style.color = atOpt ? '#1a7a40' : '#182890';
+}
+
+(function () {
+  function getSVGPt(e, svgEl) {
+    var pt  = svgEl.createSVGPoint();
+    var src = (e.touches || e.changedTouches || [])[0] || e;
+    pt.x = src.clientX; pt.y = src.clientY;
+    return pt.matrixTransform(svgEl.getScreenCTM().inverse());
+  }
+  function startDrag(e) {
+    var t = e.target;
+    if (!t || !t.getAttribute || !t.getAttribute('data-handle')) return;
+    dragTarget = t.getAttribute('data-handle');
+    e.preventDefault();
+  }
+  function moveDrag(e) {
+    if (!dragTarget) return;
+    e.preventDefault();
+    var svgEl = document.getElementById('reg-svg');
+    var ax    = svgEl._axes;
+    if (!ax) return;
+    var p     = getSVGPt(e, svgEl);
+    var yData = fromSY(p.y, ax);
+    var yRange = ax.yMax - ax.yMin;
+    yData = Math.max(ax.yMin - yRange, Math.min(ax.yMax + yRange, yData));
+    if (dragTarget === 'L') lineYL = yData;
+    else                    lineYR = yData;
+    draw();
+  }
+  function endDrag() { dragTarget = null; }
+
+  document.addEventListener('mousedown',  startDrag);
+  document.addEventListener('touchstart', startDrag, { passive: false });
+  window.addEventListener('mousemove',    moveDrag);
+  window.addEventListener('touchmove',    moveDrag, { passive: false });
+  window.addEventListener('mouseup',      endDrag);
+  window.addEventListener('touchend',     endDrag);
+})();
+
+// ── Table management ──
+function renderTable() {
+  var tbody = document.getElementById('data-body');
+  tbody.innerHTML = '';
+  DATA.forEach(function (d, i) {
+    var tr = document.createElement('tr');
+    var canDelete = DATA.length > 3;
+    tr.innerHTML =
+      '<td><input type="number" value="' + d.x + '" step="any" ' +
+        'oninput="updateCell(' + i + ',\'x\',this.value)"></td>' +
+      '<td><input type="number" value="' + d.y + '" step="any" ' +
+        'oninput="updateCell(' + i + ',\'y\',this.value)"></td>' +
+      '<td><button class="del-btn" onclick="deleteRow(' + i + ')"' +
+        (canDelete ? '' : ' disabled style="opacity:0.3;cursor:default"') +
+        '>&#10005;</button></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function updateCell(i, field, val) {
+  var v = parseFloat(val);
+  if (isNaN(v)) return;
+  DATA[i][field] = v;
+  draw();
+}
+
+function addRow() {
+  var lastX = DATA.length ? DATA[DATA.length - 1].x + 1 : 0;
+  DATA.push({ x: lastX, y: 0 });
+  renderTable();
+  draw();
+}
+
+function deleteRow(i) {
+  if (DATA.length <= 3) return;
+  DATA.splice(i, 1);
+  renderTable();
+  draw();
+}
+
+function resetData() {
+  DATA = ebayContinuousData();
+  renderTable();
+  resetLine();
+}
+
+function snapToOLS() {
+  var ols = computeOLS();
+  var ax  = getAxes();
+  lineYL  = ols.a + ols.b * ax.xMin;
+  lineYR  = ols.a + ols.b * ax.xMax;
+  draw();
+}
+
+function resetLine() {
+  var ax = getAxes();
+  lineYL = (ax.yMax - ax.yMin) * 0.3 + ax.yMin;
+  lineYR = (ax.yMax - ax.yMin) * 0.5 + ax.yMin;
+  draw();
+}
+
+function toggleLine() {
+  showLine = !showLine;
+  var btn = document.getElementById('toggle-line-btn');
+  btn.textContent = showLine ? 'Hide line' : 'Show line';
+  draw();
+}
+
+function toggleResiduals() {
+  showResiduals = !showResiduals;
+  var btn = document.getElementById('toggle-residuals-btn');
+  btn.textContent = showResiduals ? 'Hide residuals' : 'Show residuals';
+  draw();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Init
+// ════════════════════════════════════════════════════════════════════════════
+binLoadDataset();
+binResetLine();
+renderTable();
+resetLine();
+</script>
+
+</body>
+</html>
